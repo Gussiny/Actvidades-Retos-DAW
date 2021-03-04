@@ -1,0 +1,368 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>AJAX/GOLANG</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="mystyle.css">
+
+
+</head>
+
+<body style="background-color: grey;">
+    <div class="container p-5">
+
+        <!-- ACTIVIDAD 1 -->
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-sm">
+                    <h4>Actividad 1</h4>
+                </div>
+            </div>
+
+            <div class="row p-2">
+                <div class="col-sm-2">
+                    <button class="btn btn-warning" type="button" onclick="mostrar2()">GET</button>
+                </div>
+
+                <div class="col-sm-2">
+                    <button class="btn btn-primary" type="button" onclick="mostrar()">POST</button>
+                </div>
+
+                <div class="col-sm-4">
+                    <div id="lugardetrabajo"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 2 -->
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-sm">
+                    <h4>Actividad 2</h4>
+                </div>
+            </div>
+
+            <div class="row p-2">
+                <div class="col-sm-2">
+                    <button class="btn btn-warning" type="button" onclick="mostrarJSON()">GET</button>
+                </div>
+                <div class="col-sm-2">
+                    <button class="btn btn-info" type="button" id="cleanTable">LIMPIAR</button>
+                </div>
+                <div class="col-sm-12 p-2">
+                    <table class="table" style="text-align: center;">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th data-field="titulo">TITULO</th>
+                                <th data-field="director">DIRECTOR</th>
+                                <th data-field="duracion">DURACION</th>
+                                <th data-field="calificacion">CALIFICACION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 3 -->
+        <div class="jumbotron">
+            <div class="row">
+                <div class="col-sm">
+                    <h4>Actividad 3</h4>
+                </div>
+            </div>
+
+            <div class="row p-2">
+                <div class="col-sm-3">
+                    <button id="botonForm" class="btn" type="button" onclick="formulario()"
+                        style="background-color: #28a745;">NUEVO</button>
+                </div>
+
+                <div class="col-sm-3">
+                    <button class="btn btn-info" type="button" onclick="consultar()">CONSULTAR</button>
+                </div>
+
+                <div class="col-sm-3">
+                    <div id="trabajo3">
+                        <span>
+                            <h6>Datos actuales: </h6>
+                            <p id="datosActuales"></p>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div>
+                        <span>
+                            <h6>Nuevos datos: </h6>
+                            <p id="nuevosDatos"></p>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-sm-12 p-3" id="formulario" style="display: none;">
+                    <form enctype="multipart/form-data" method="post" id="formElement">
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="titulo">Titulo</label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" placeholder="Titulo">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="director">Director</label>
+                                <input type="text" class="form-control" id="director" name="director"
+                                    placeholder="Director">
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label for="duracion">Duracion</label>
+                                <input type="number" class="form-control" id="duracion" name="duracion" min="1"
+                                    max="300">
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                <label for="calificacion">Calificacion</label>
+                                <input type="number" class="form-control" id="calificacion" name="calificacion" min="1"
+                                    max="10">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success" onclick="insertarDatos()">REGISTRAR</button>
+                    </form>
+                </div>
+
+                <div class="col-sm-12 p-2" id="notificaciones">
+                    <table class="table" style="text-align: center;">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th data-field="titulo">TITULO</th>
+                                <th data-field="director">DIRECTOR</th>
+                                <th data-field="duracion">DURACION</th>
+                                <th data-field="calificacion">CALIFICACION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla2">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src=" https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous">
+    </script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+    </script>
+
+    <script type="text/javascript">
+        let xmlhttp;
+        let datosActuales = 0
+        let nuevosDatos = 0
+        var datoTxt = document.getElementById("datosActuales")
+        var nuevosTxt = document.getElementById("nuevosDatos")
+        datoTxt.innerHTML = datosActuales
+        nuevosTxt.innerHTML = nuevosDatos
+
+        $("#cleanTable").click(function () {
+            $("#tabla").empty();
+        });
+
+        // ACTIVIDAD 1
+        function mostrar() {
+            if (window.XMLHttpRequest) {
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.getElementById("lugardetrabajo").innerHTML =
+                        "ARREGLO MODIFICADO";
+                    // console.log(xmlhttp.responseText);
+                }
+            }
+            // POST
+            var cadena = "/reto"
+            xmlhttp.open("POST", cadena, true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send("y=3&n=4");
+            // alert("ARREGLO MODIFICADO");
+        }
+
+        function mostrar2() {
+            if (window.XMLHttpRequest) {
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    document.getElementById("lugardetrabajo").innerHTML = xmlhttp
+                        .responseText;
+                    console.log(xmlhttp.responseText);
+                }
+            }
+            // GET
+            xmlhttp.open("GET", "/reto", true);
+            xmlhttp.send();
+        }
+
+        //  ACTIVIDAD 2
+        function mostrarJSON() {
+            if (window.XMLHttpRequest) {
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+                    var eljson = JSON.parse(xmlhttp.responseText)
+
+                    console.log(eljson);
+                    var tabla = document.getElementById("tabla")
+                    $("#tabla").empty();
+                    for (i = 0; i < eljson.length; i++) {
+                        var row = `<tr>
+                                        <td>${eljson[i].Titulo}</td>
+                                        <td>${eljson[i].Director}</td>
+                                        <td>${eljson[i].Duracion}</td>
+                                        <td>${eljson[i].Calificacion}</td>
+                                    </tr>`
+                        tabla.innerHTML += row
+                    }
+                }
+            }
+            // GET
+            xmlhttp.open("GET", "/actividad2", true);
+            xmlhttp.send();
+        }
+
+        //  ACTIVIDAD 3
+        function formulario() {
+            var x = document.getElementById("formulario");
+            var boton = document.getElementById("botonForm");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+                boton.style.background = 'red'
+                boton.firstChild.data = "CANCELAR"
+            } else {
+                x.style.display = "none";
+                boton.style.background = '#28a745'
+                boton.firstChild.data = "NUEVO"
+            }
+        }
+
+        function insertarDatos() {
+            if (window.XMLHttpRequest) {
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    alert("Elemento Insertado")
+                    $("#formElement").trigger("reset");
+                    formulario()
+                }
+            }
+
+            var titulo = document.getElementById("titulo").value
+            var director = document.getElementById("director").value
+            var duracion = document.getElementById("duracion").value
+            var calificacion = document.getElementById("calificacion").value
+
+            var datos = []
+            datos.push("titulo=" + titulo)
+            datos.push("director=" + director)
+            datos.push("duracion=" + duracion)
+            datos.push("calificacion=" + calificacion)
+
+            // POST
+            var cadena = "/insertar"
+            xmlhttp.open("POST", cadena, true);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send(datos.join("&"));
+        }
+
+        function consultar() {
+            if (window.XMLHttpRequest) {
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+                    var eljson = JSON.parse(xmlhttp.responseText)
+                    console.log(eljson)
+                    console.log(datosActuales)
+
+                    if (datosActuales < eljson.length) {
+
+                        nuevosDatos = eljson.length - datosActuales
+                        alert("Nuevos datos obtenidos: " + nuevosDatos)
+                        console.log("ACTUALES: " + datosActuales + " NUEVOS: " + nuevosDatos)
+                        var tabla = document.getElementById("tabla2")
+
+                        $("#tabla2").empty();
+
+                        if (datosActuales == 0) {
+                            console.log(nuevosDatos)
+                            for (i = 0; i < nuevosDatos; i++) {
+                                console.log("i = " + i)
+                                var row = `<tr>
+                                        <td>${eljson[i].Titulo}</td>
+                                        <td>${eljson[i].Director}</td>
+                                        <td>${eljson[i].Duracion}</td>
+                                        <td>${eljson[i].Calificacion}</td>
+                                    </tr>`
+                                tabla.innerHTML += row
+                            }
+                        } else {
+                            console.log("i = " + (datosActuales) + " i < : " + (datosActuales + nuevosDatos))
+                            for (i = datosActuales; i < datosActuales + nuevosDatos; i++) {
+                                console.log("i = " + i)
+                                var row = `<tr>
+                                        <td>${eljson[i].Titulo}</td>
+                                        <td>${eljson[i].Director}</td>
+                                        <td>${eljson[i].Duracion}</td>
+                                        <td>${eljson[i].Calificacion}</td>
+                                    </tr>`
+                                tabla.innerHTML += row
+                            }
+
+                        }
+
+
+
+                        datosActuales = eljson.length
+
+                        datoTxt.innerHTML = datosActuales
+                        nuevosTxt.innerHTML = nuevosDatos
+                        console.log("ACTUALES: " + datosActuales + " NUEVOS: " + nuevosDatos)
+                    } else if (datosActuales == eljson.length) {
+                        alert("No hay nuevos datos")
+                    }
+                }
+            }
+            // GET
+            xmlhttp.open("GET", "/actividad2", true);
+            xmlhttp.send();
+        }
+    </script>
+</body>
+
+</html>

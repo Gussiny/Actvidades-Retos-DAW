@@ -1,0 +1,402 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Vue Semestre i</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+  <style>
+    .form-row {
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+
+<body>
+  <div id="lugardetrabajo">
+    
+    <div class="container p-3" style="text-align: center;">
+      <div class="columns is-centered">
+        <div class="column is-full">
+          <p class="title is-1" style="text-align: center;">
+            Actividad Vue/Fetch
+          </p>
+          <div class="columns is-centered">
+            <div class="column is-6">
+              <div v-if="tomorrowState" class="notification is-success is-light" >
+                Mañana si abrimos nenis 🤩
+              </div>
+              <div v-else class="notification is-danger is-light" >
+                Mañana no abrimos nenis 😢
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="columns">
+      <div class="column" style="top: 1rem; right: 1rem; position: absolute;">
+        <div class="columns" v-for="(day, i) in weekDays">
+          <div class="field">
+            <div class="control">
+              <input class="checkbox" type="checkbox" v-model="openDays[i]" v-bind:id="i">
+              <label v-bind:for="i" class="checkbox">
+                {{ day }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="container p-5">
+      <!-------------------- INPUTS ----------------------------->  
+      <div class="columns is-centered">
+        <!-- AUTOR -->
+        <div class="column is-4">
+          <div class="field">
+            <label class="label">Autor</label>
+            <div class="control">
+              <input type="text" class="input" v-model="nuevoAutor">
+            </div>
+          </div>
+        </div>
+
+        <!-- TITULO -->
+        <div class="column is-4">
+          <div class="field">
+            <label class="label">Titulo</label>
+            <div class="control">
+              <input type="text" class="input" v-model="nuevoTitulo">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="columns is-centered">
+        <!-- CANTIDAD -->
+        <div class="column is-4">
+          <div class="field">
+            <label class="label">Cantidad</label>
+            <div class="control">
+              <input type="number" class="input" v-model="nuevaCantidad">
+            </div>
+          </div>
+        </div>
+
+        <!-- EDITORIAL -->
+        <div class="column is-4">
+          <div class="field">
+            <label class="label">Editorial</label>
+            <div class="control">
+              <input type="text" class="input" v-model="nuevoEditorial">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="columns is-centered">
+        <!-- PROMOCION -->
+          <div class="field">
+            <div class="control">
+              <label class="checkbox" >
+                <input class="checkbox" type="checkbox" v-model="nuevaOferta">
+                  Promoción
+              </label>
+            </div>
+          </div>
+      </div>
+
+      <!-------------------- BOTONES ----------------------------->
+
+      <!-- BOTONES AGREGAR -->
+      
+      <div class="field is-grouped is-grouped-centered" v-if="!this.editable">
+        <!-- AGREGAR -->
+        <p class="control">
+          <a class="button is-primary" v-on:click="addBook">
+            AGREGAR LIBRO
+          </a>
+        </p>
+      </div>
+
+      <!-- BOTONES EDITAR -->
+      <div class="field is-grouped is-grouped-centered" v-else>
+        <!-- EDITAR -->
+        <p class="control">
+          <a class="button is-info" v-on:click="saveChanges(id)">
+            EDITAR LIBRO
+          </a>
+        </p>
+
+        <!-- CANCELAR -->
+        <p class="control">
+          <a class="button is-danger" v-on:click="cancelEdit()">
+            CANCELAR
+          </a>
+        </p>
+      </div>
+      
+    </div>
+
+
+    <!-------------------- BOTONES FILTROS ----------------------------->
+    <div class="container p-5">
+
+      <div class="field is-grouped is-grouped-left">
+        <!-- AUTOR -->
+        <p class="control">
+          <a class="button is-link is-light" v-on:click="orderBy = 'autor'">
+            Autor
+          </a>
+        </p>
+
+        <!-- CANTIDAD -->
+        <p class="control">
+          <a class="button is-link is-light" v-on:click="orderBy = 'cantidad'">
+            Cantidad
+          </a>
+        </p>
+      </div>
+
+      <!-------------------- TABLA DE LIBROS ----------------------------->
+      <table class="table is-striped is-bordered is-fullwidth" style="text-align: center;">
+        <thead>
+          <tr>
+            <th>Editar</th>
+            <th>Autor</th>
+            <th>Titulo</th>
+            <th>Cantidad</th>
+            <th>Editorial</th>
+            <th>Oferta</th>
+            <th>Eliminar</th>
+          </tr>
+        </thead>
+        <tbody v-bind:style="{color: !activeColor}">
+          <tr v-for="(libro, i) in ordenarLibros">
+            <td>
+              <a class="btn" v-on:click="editBook(i)">
+                <i class="fa fa-pencil-square-o fa-lg" aria-hidden="true" style="color: #007bff;">
+                </i></a>
+            </td>
+            <td>{{ libro.autor }}</td>
+            <td>{{ libro.titulo }}</td>
+            <td>{{ libro.cantidad }}</td>
+            <td>{{ libro.editorial }}</td>
+
+            <td v-if="libro.oferta" style="background-color: rgba(50, 233, 50, 0.377);">✅</td>
+            <td v-else style="background-color: rgba(233, 65, 50, 0.377);">❌</td>
+            <td><a class="btn" v-on:click="deleteBook(i)"><i class="fa fa-trash-o fa-lg" aria-hidden="true"
+              style="color: red;"></i></a></td>
+              
+            </tr>
+          </tbody>
+      </table>
+
+      <!-------------------- TABLA DE PELIS ----------------------------->
+      <div class="columns is-centered">
+        <table class="table is-striped is-bordered is-hoverable" style="text-align: center;">
+          <thead>
+            <tr>
+              <th data-field="titulo">Titulo</th>
+              <th data-field="director">Director</th>
+              <th data-field="duracion">Cantidad</th>
+              <th data-field="calificacion">Genero</th>
+            </tr>
+          </thead>
+          <tbody v-bind:style="{color: !activeColor}">
+            <tr v-for="(peli, i) in pelis">
+              
+              <td>{{ peli.Titulo }}</td>
+              <td>{{ peli.Director }}</td>
+              <td>{{ peli.Cantidad }}</td>
+              <td>{{ peli.Genero }}</td>
+                
+              </tr>
+            </tbody>
+        </table>
+
+      </div>
+
+      
+    </div>
+    
+  </div>
+  
+  <script type="text/javascript">
+    //Una instancia de Vue que manejará esa área del documento #lugardetrabajo
+    c = new Vue({
+      el: "#lugardetrabajo",
+      created() {
+        fetch("http://localhost:8081/books")
+        .then(response => response.json())
+        .then(data => (this.libros = data));
+        
+        fetch("http://localhost:8081/movies")
+          .then(response => response.json())
+          .then(data => (this.pelis = data));
+      },
+      data: {
+        nombre: "La elegante vagancia",
+
+        nuevoAutor: "",
+        nuevoTitulo: "",
+        nuevaCantidad: 0,
+        nuevoEditorial: "",
+        nuevaOferta: false,
+
+        activeColor: 'white',
+        bgColor: '#292929',
+        darkMode: true,
+
+        btColor: '#292929',
+        btBack: 'white',
+
+        orderBy: 'autor',
+
+        editable: false,
+        id: 0,
+
+        tomorrow: false,
+
+        pelis: null,
+
+        weekDays: ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'],
+        openDays: [1, 1, 0, 1, 1, 0, 0],
+
+        libros: null
+
+      },
+
+      computed: {
+        ordenarLibros: function () {
+          this.libros = _.orderBy(this.libros, [this.orderBy]);
+          return this.libros;
+        },
+
+        tomorrowState: function () {
+          return this.openDays[(((new Date()).getDay())) % 7];
+        }
+      },
+
+      watch: {
+        nombre: function (data) {
+          console.log(data);
+        },
+
+        openDays: function (data) {
+          tomorrow = (((new Date()).getDay())) % 7;
+          if (this.openDays[tomorrow]) {
+            this.tomorrow = true;
+          } else {
+            this.tomorrow = false;
+          }
+        }
+      },
+
+
+      methods: {
+        metodo: function () {
+          alert("click");
+        },
+        addBook: function () {
+          if (this.nuevoAutor != "" && this.nuevoTitulo != "" && this.nuevoEditorial != "") {
+            this.libros.push({
+              autor: this.nuevoAutor.trim(),
+              titulo: this.nuevoTitulo.trim(),
+              oferta: this.nuevaOferta,
+              cantidad: this.nuevaCantidad,
+              editorial: this.nuevoEditorial.trim(),
+            });
+
+            this.nuevoAutor = this.nuevoTitulo = this.nuevoEditorial = "";
+            this.nuevaCantidad = 0;
+            this.nuevaOferta = false;
+
+          }
+        },
+
+        deleteBook: function (i) {
+          this.libros.splice(i, 1);
+        },
+
+        editBook: function (i) {
+          this.nuevoAutor = this.libros[i].autor;
+          this.nuevoEditorial = this.libros[i].editorial;
+          this.nuevoTitulo = this.libros[i].titulo;
+          this.nuevaCantidad = this.libros[i].cantidad;
+          this.nuevaOferta = this.libros[i].oferta;
+          this.editable = true;
+          this.id = i;
+        },
+
+        saveChanges(i) {
+          this.libros[i].autor = this.nuevoAutor.trim();
+          this.libros[i].titulo = this.nuevoTitulo.trim();
+          this.libros[i].editorial = this.nuevoEditorial.trim();
+          this.libros[i].cantidad = this.nuevaCantidad;
+          this.libros[i].oferta = this.nuevaOferta;
+
+          this.cancelEdit();
+        },
+
+        cancelEdit: function () {
+          this.nuevoAutor = this.nuevoTitulo = this.nuevoEditorial = "";
+          this.nuevaCantidad = 0;
+          this.nuevaOferta = false;
+          this.editable = false;
+          this.id = 0;
+        },
+
+
+        changeColor: function () {
+          if (this.activeColor == 'white') {
+            this.activeColor = '#292929';
+            this.bgColor = 'white';
+
+            this.btColor = 'white';
+            this.btBack = '#292929';
+
+            this.darkMode = false;
+          } else {
+            this.activeColor = 'white';
+            this.bgColor = '#292929';
+
+            this.btColor = '#292929';
+            this.btBack = 'white';
+
+            this.darkMode = true;
+          }
+        }
+      }
+
+
+    });
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+  </script>
+
+
+</body>
+
+</html>

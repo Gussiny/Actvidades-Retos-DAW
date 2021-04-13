@@ -49,6 +49,10 @@
             display: block;
             padding: .1rem 1rem;
         }
+        .cover{
+            background: rgb(24,160,144);
+            background: linear-gradient(180deg, rgba(24,160,144,1) 0%, rgba(12,81,73,0.7679446778711485) 100%);
+        }
 
         @media (max-width: 960px){
             .navbar {
@@ -101,17 +105,29 @@
                     </div>
                 </nav>
             </div>
-            <div class="col-md-12 col-lg-10 table-responsive songs  ">
+            <div class="col-md-12 col-lg-10 table-responsive songs">
+                <div class="row p-5 cover" >
+                    <div class="col-md-6 d-flex">
+                        <img v-bind:src="portada" alt="portada">
+                        <span class="ml-3" style="display: grid;">
+                            <h6 class="mt-5 ">PLAYLIST</h6>
+                            <h1 class="">PURAS ROLAS BIEN LOCAS</h1>
+                            <p style="color: darkgray;">Rolitas con las que me pongo bien loco la neta que si</p>
+                            <p style="color: #b3b3b3;"><b class="text-white">{{ users[Math.floor(Math.random() * totalUsers)].username }}</b> - {{ total }} canciones, {{ Math.floor(duracion / 60000) + " min " + ((duracion % 60000) / 1000).toFixed(0) + " seg" }}</p> 
+                        </span>
+                        
+
+                    </div>
+                    <div class="col-3 d-flex">
+                    </div>
+                    
+                </div>
                 <div class="row p-3">
                     <div class="col">
                         <img src="https://jccdallas.org/wp-content/uploads/2020/06/Spotify-Play-Button-1.png"
                             height="80" alt="play">
-                            <i class="fa fa-1x fa-heart" aria-hidden="true" style="vertical-align: middle; color: #1DB954; font-size: 22px;"></i>
-                            <i class="fa fa-ellipsis-h ml-3" aria-hidden="true" style="vertical-align: middle; font-size: 30px;"></i>
-
-                    </div>
-                    <div class="col d-flex justify-content-center">
-
+                            <i class="fa fa-1x fa-heart ml-3" aria-hidden="true" style="vertical-align: middle; color: #1DB954; font-size: 22px;"></i>
+                            <i class="fa fa-ellipsis-h ml-4" aria-hidden="true" style="vertical-align: middle; font-size: 30px;"></i>
                     </div>
                 </div>
                 <div class="row ml-4">
@@ -175,11 +191,20 @@
             created: function () {
 
                 console.log("instancia creada")
+                fetch("http://localhost:8000/users", {
+                    method: 'GET',
+                })
+                .then(data => (data.json()) )
+                .then(users => {
+                    this.users = users
+                    this.totalUsers = users.length
+                });
+
                 fetch("https://api.spotify.com/v1/browse/categories?limit=10", {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': 'Bearer BQBZ-v6E51DOjdGSnPiDTNn0wQvrBiRY2TnAvwyHl3wyvEDb_xa7O9ZbPCGE-fiHWpuMrzIyBsu0ROy4GI1Ij-p9At7vdZmY1wcw-cFBNneTuz-ziSQLJX05WtzIjn4GmKGU9E93Nc0tapifiga-nAlHSgrPe6nNym54zZ8'
+                            'Authorization': 'Bearer BQAqcIBlQi063efNTT7L5qnUMOCtzaudXRNh32hbk9E5BAEcYhRokdfuPwPdEP4BsSBT-ygp9x996q5puA7lHUKJND8jUsAyzJFaJG9gbtmpTzcYjbglsEotwyTlDWNlInqRW8F3nvPKl3rmDtQ99l1G7T7xouwyFZJLDPU'
                         }
                     })
                     .then(response => response.json())
@@ -189,21 +214,36 @@
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': 'Bearer BQBZ-v6E51DOjdGSnPiDTNn0wQvrBiRY2TnAvwyHl3wyvEDb_xa7O9ZbPCGE-fiHWpuMrzIyBsu0ROy4GI1Ij-p9At7vdZmY1wcw-cFBNneTuz-ziSQLJX05WtzIjn4GmKGU9E93Nc0tapifiga-nAlHSgrPe6nNym54zZ8'
+                            'Authorization': 'Bearer BQAqcIBlQi063efNTT7L5qnUMOCtzaudXRNh32hbk9E5BAEcYhRokdfuPwPdEP4BsSBT-ygp9x996q5puA7lHUKJND8jUsAyzJFaJG9gbtmpTzcYjbglsEotwyTlDWNlInqRW8F3nvPKl3rmDtQ99l1G7T7xouwyFZJLDPU'
                         }
                     })
                     .then(response => response.json())
                     .then(data => {
                         this.songs = data.items
-                        console.log(this.songs);
+                        this.total = data.limit
+                        data.items.forEach(song => {
+                            this.duracion += song.duration_ms;
+                        });
                     });
+                
+                fetch("https://picsum.photos/250", {
+                    method: 'GET',
+                })
+                .then(data => (this.portada = data.url) );
+
+                
 
             },
 
             data: {
                 nombre: "Spotify",
                 datos: null,
-                songs: null
+                songs: null,
+                portada: null,
+                total: 0,
+                duracion: 0,
+                users: null,
+                totalUsers: 0,
             },
 
 
